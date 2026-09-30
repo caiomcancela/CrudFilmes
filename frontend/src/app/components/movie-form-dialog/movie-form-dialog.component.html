@@ -1,0 +1,142 @@
+<div class="dialog-backdrop" (click)="close()">
+  <section
+    class="dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="movie-dialog-title"
+    (click)="$event.stopPropagation()"
+  >
+    <form #movieForm="ngForm" (ngSubmit)="save(movieForm)">
+      <div class="dialog-heading">
+        <span class="dialog-icon" aria-hidden="true">{{
+          editing ? "✎" : "+"
+        }}</span>
+        <div>
+          <span class="eyebrow">{{
+            editing ? "ATUALIZE OS DADOS" : "ADICIONE AO ACERVO"
+          }}</span>
+          <h2 id="movie-dialog-title">
+            {{ editing ? "Editar filme" : "Novo filme" }}
+          </h2>
+        </div>
+      </div>
+
+      <div class="dialog-content">
+        <div class="form-field full-width">
+          <label for="title">Título</label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            placeholder="Ex.: Interestelar"
+            maxlength="200"
+            required
+            autofocus
+            [(ngModel)]="formData.title"
+            #title="ngModel"
+          />
+          @if (title.touched && title.invalid) {
+            <span class="field-error">Informe o título do filme.</span>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="release-year">Ano de lançamento</label>
+            <input
+              id="release-year"
+              name="releaseYear"
+              type="number"
+              min="1888"
+              max="2100"
+              required
+              [(ngModel)]="formData.release_year"
+              #releaseYear="ngModel"
+            />
+            @if (releaseYear.touched && releaseYear.invalid) {
+              <span class="field-error">Use um ano entre 1888 e 2100.</span>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="duration">Duração</label>
+            <div class="input-suffix">
+              <input
+                id="duration"
+                name="duration"
+                type="number"
+                min="1"
+                required
+                [(ngModel)]="formData.duration"
+                #duration="ngModel"
+              />
+              <span>min</span>
+            </div>
+            @if (duration.touched && duration.invalid) {
+              <span class="field-error">Informe uma duração válida.</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-field full-width">
+          <label for="genre">Gênero</label>
+          <select
+            id="genre"
+            name="genre"
+            required
+            [(ngModel)]="formData.genre"
+            #genre="ngModel"
+          >
+            <option value="" disabled>Selecione um gênero</option>
+            @for (genreOption of genres; track genreOption) {
+              <option [value]="genreOption">{{ genreOption }}</option>
+            }
+          </select>
+          @if (genre.touched && genre.invalid) {
+            <span class="field-error">Selecione um gênero.</span>
+          }
+        </div>
+
+        <div class="form-field full-width">
+          <label for="rating">Classificação indicativa</label>
+          <select
+            id="rating"
+            name="rating"
+            required
+            [(ngModel)]="formData.rating"
+          >
+            @for (ratingOption of ratings; track ratingOption.value) {
+              <option [value]="ratingOption.value">
+                {{ ratingOption.value }} - {{ ratingOption.description }}
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (error) {
+          <p class="dialog-error" role="alert">{{ error }}</p>
+        }
+      </div>
+
+      <div class="dialog-actions">
+        <button
+          type="button"
+          class="cancel-button"
+          [disabled]="saving"
+          (click)="close()"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="save-button" [disabled]="saving">
+          {{
+            saving
+              ? "Salvando..."
+              : editing
+                ? "Salvar alterações"
+                : "Cadastrar filme"
+          }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

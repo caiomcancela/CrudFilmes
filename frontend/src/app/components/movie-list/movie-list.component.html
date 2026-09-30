@@ -1,0 +1,143 @@
+<header class="toolbar">
+  <div class="toolbar-content">
+    <a class="brand" href="/movies" aria-label="Cine arquivo - página inicial">
+      <span class="brand-mark" aria-hidden="true"><span></span></span>
+      <span>CINEARQ</span>
+    </a>
+    <button type="button" class="new-movie-button" (click)="openForm()">
+      <span aria-hidden="true">+</span>
+      Adicionar Filme
+    </button>
+  </div>
+</header>
+
+<main>
+  <section aria-labelledby="catalog-title">
+    <div class="catalog-heading">
+      <h1 id="catalog-title">Meu catálogo</h1>
+      <form class="search-form" role="search" (ngSubmit)="search()">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="m20.7 19.3-4.2-4.2a7.5 7.5 0 1 0-1.4 1.4l4.2 4.2 1.4-1.4ZM5 10.5a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"
+            />
+          </svg>
+          <input
+            type="search"
+            aria-label="Pesquisar filmes"
+            placeholder="Título, gênero, ano, duração ou classificação"
+            maxlength="200"
+            autocomplete="off"
+            [(ngModel)]="searchTerm"
+            name="search"
+          />
+          @if (searchTerm || appliedSearch) {
+            <button
+              type="button"
+              class="clear-search-button"
+              aria-label="Limpar pesquisa"
+              title="Limpar pesquisa"
+              [disabled]="loading"
+              (click)="clearSearch()"
+            >
+              ×
+            </button>
+          }
+        </div>
+        <button type="submit" class="search-button" [disabled]="loading">
+          Pesquisar
+        </button>
+      </form>
+    </div>
+
+    @if (loading) {
+      <div class="state-box">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Buscando seu acervo...</p>
+      </div>
+    } @else if (movies.length > 0) {
+      <div class="movie-list">
+        @for (movie of movies; track movie.id; let index = $index) {
+          <article class="movie-card">
+            <span class="movie-number" aria-hidden="true"
+              >{{ index + 1 }}.</span
+            >
+            <div class="movie-content">
+              <div class="title-line">
+                <h2>{{ movie.title }}</h2>
+                <span
+                  [class]="'rating rating-' + movie.rating"
+                  [title]="getRatingDescription(movie.rating)"
+                  >{{ movie.rating }}</span
+                >
+              </div>
+              <div class="metadata">
+                <span>{{ movie.release_year }}</span>
+                <span class="dot"></span>
+                <span>{{ movie.genre }}</span>
+                <span class="dot"></span>
+                <span>{{ movie.duration }} min</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button
+                type="button"
+                class="edit-button"
+                [attr.aria-label]="'Editar ' + movie.title"
+                title="Editar filme"
+                (click)="openForm(movie)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M4 16.5V20h3.5L18 9.5 14.5 6 4 16.5Zm16.7-9.8a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0L15.7 5 19 8.3l1.7-1.6Z"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="delete-button"
+                [attr.aria-label]="'Excluir ' + movie.title"
+                title="Excluir filme"
+                (click)="remove(movie)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M7 21a2 2 0 0 1-2-2V7h14v12a2 2 0 0 1-2 2H7Zm10-17h-2.5l-1-1h-3l-1 1H7v2h10V4ZM8 9v9h2V9H8Zm6 0v9h2V9h-2Z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    } @else if (appliedSearch) {
+      <div class="state-box search-empty-state">
+        <h2>Nenhum filme encontrado</h2>
+        <p>Não há resultados para “{{ appliedSearch }}”.</p>
+        <button class="outline-button" type="button" (click)="clearSearch()">
+          Limpar pesquisa
+        </button>
+      </div>
+    } @else {
+      <div class="state-box">
+        <h2>Seu catálogo está vazio</h2>
+        <p>Adicione seu primeiro filme para começar.</p>
+      </div>
+    }
+  </section>
+</main>
+
+@if (formOpen) {
+  <app-movie-form-dialog
+    [movie]="selectedMovie"
+    (closed)="closeForm()"
+    (saved)="handleSaved()"
+  />
+}
+
+@if (message) {
+  <div class="toast" role="status">
+    <span>{{ message }}</span>
+    <button type="button" (click)="message = ''">Fechar</button>
+  </div>
+}
