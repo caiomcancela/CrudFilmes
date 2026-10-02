@@ -18,16 +18,17 @@ describe("MovieListComponent", () => {
     created_at: "2026-01-01T00:00:00.000Z",
   };
 
-  const movieService = {
-    list: vi.fn(),
-    delete: vi.fn(() => of(undefined)),
-    create: vi.fn(),
-    update: vi.fn(),
-  };
+  const movieService = jasmine.createSpyObj<MovieService>("MovieService", [
+    "list",
+    "delete",
+    "create",
+    "update",
+  ]);
 
   beforeEach(async () => {
-    movieService.list.mockReturnValue(of([movie]));
-    movieService.list.mockClear();
+    movieService.list.calls.reset();
+    movieService.list.and.returnValue(of([movie]));
+    movieService.delete.and.returnValue(of(undefined));
 
     await TestBed.configureTestingModule({
       imports: [MovieListComponent],
@@ -55,7 +56,7 @@ describe("MovieListComponent", () => {
   });
 
   it("should finish loading after the asynchronous request completes", async () => {
-    movieService.list.mockReturnValue(
+    movieService.list.and.returnValue(
       new Observable<Movie[]>((subscriber) => {
         setTimeout(() => {
           subscriber.next([movie]);
@@ -91,7 +92,7 @@ describe("MovieListComponent", () => {
   });
 
   it("should render the empty catalog state", () => {
-    movieService.list.mockReturnValue(of([]));
+    movieService.list.and.returnValue(of([]));
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector(".movie-card")).toBeNull();
@@ -102,7 +103,7 @@ describe("MovieListComponent", () => {
 
   it("should search through the endpoint", () => {
     fixture.detectChanges();
-    movieService.list.mockClear();
+    movieService.list.calls.reset();
     fixture.componentInstance.searchTerm = "  Interestelar  ";
 
     fixture.componentInstance.search();

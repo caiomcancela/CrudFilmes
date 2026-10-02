@@ -6,12 +6,15 @@ import { MovieFormDialogComponent } from "./movie-form-dialog.component";
 describe("MovieFormDialogComponent", () => {
   let fixture: ComponentFixture<MovieFormDialogComponent>;
 
-  const movieService = {
-    create: vi.fn(() => of({})),
-    update: vi.fn(() => of({})),
-  };
+  const movieService = jasmine.createSpyObj<MovieService>("MovieService", [
+    "create",
+    "update",
+  ]);
 
   beforeEach(async () => {
+    movieService.create.and.returnValue(of({} as never));
+    movieService.update.and.returnValue(of({} as never));
+
     await TestBed.configureTestingModule({
       imports: [MovieFormDialogComponent],
       providers: [{ provide: MovieService, useValue: movieService }],
